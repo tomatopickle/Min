@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, webContents } = require('electron');
+const { app, BrowserWindow,nativeTheme ,ipcMain} = require('electron');
 const { download } = require('electron-dl');
 var win, contextMenu;
 function createWindow() {
@@ -110,3 +110,8 @@ app.on("web-contents-created", (e, contents) => {
         });
     }
 });
+nativeTheme.themeSource = 'dark';
+ipcMain.on("theme",(data)=>{
+    console.log(data);
+    nativeTheme.themeSource = data;
+})

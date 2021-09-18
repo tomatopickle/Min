@@ -1,11 +1,15 @@
 let tabs = document.querySelector("x-doctabs");
+const path = require("path");
 const { ipcRenderer } = require("electron")
 function selectTab(id, isNewTab) {
     document.querySelector("webview.open")?.classList.remove("open");
     const window = document.getElementById(`window${id}`);
     window?.classList.add("open");
+    if (window.src.includes("views") && window.src.includes("newtab")) {
+        document.getElementById("searchbar").focus();
+    }
     if (isNewTab) return
-    document.getElementById("searchbar").value = window.src;
+    document.getElementById("searchbar").value = changeUrlName(window.src);
     document.getElementById("backBtn").disabled = !window.canGoBack();
     document.getElementById("forwardBtn").disabled = !window.canGoForward();
     if (!window.isLoading()) {
@@ -16,14 +20,15 @@ function selectTab(id, isNewTab) {
 }
 function closeWindow(id) {
     document.getElementById(`window${id}`).remove();
-    if (!!document.querySelector("x-doctabs").childElementCount && !!document.querySelector("x-doctab[selected]")) {
+    setTimeout(() => {
         // Waiting for animation end and the next tab to be selected
-        setTimeout(() => {
+        if (!!document.querySelector("x-doctabs").childElementCount && !!document.querySelector("x-doctab[selected]")) {
             selectTab(document.querySelector("x-doctab[selected]").id.replace("tab", ""));
-        }, 50);
-    } else if (document.querySelector("x-doctabs").childElementCount == 0) {
-        openLink("./views/newtab/index.html");
-    }
+        } else if (document.querySelector("x-doctabs").childElementCount == 0) {
+            openHome();
+            document.getElementById("searchbar").focus();
+        }
+    }, 50);
 }
 function openLink(url) {
     var id = Math.floor(100000 + Math.random() * 900000);
@@ -37,7 +42,7 @@ function openLink(url) {
     }
     tab.selected = true;
     tab.id = `tab${id}`;
-    tab.innerHTML = `<x-throbber  type="spinner" size="small" computedSize="small"></x-throbber><x-label>${url}</x-label>`;
+    tab.innerHTML = `<x-throbber  type="spinner" size="small" computedSize="small"></x-throbber><x-label>${changeUrlName(url)}</x-label>`;
     page.addEventListener('did-start-loading', (e) => {
         startLoading(e);
     });
@@ -58,7 +63,7 @@ function openLink(url) {
         selectTab(id);
     }
     page.addEventListener('did-stop-loading', (e) => {
-        tab.innerHTML = `<img src="${getBase(e.target.src)}/favicon.ico" /><x-label>${page.getTitle().toString()}</x-label>`;
+        tab.innerHTML = `<img src="${getBase(e.target.src)}/favicon.ico" /><x-label>${changeUrlName(page.getTitle().toString())}</x-label>`;
         tab.title = page.getTitle().toString();
         if (e.target.classList.contains("open")) {
             document.getElementById("reloadBtn").innerHTML = `<x-icon size="small" iconset="fluent-outlined.svg" name="refresh"></x-icon> `;
@@ -74,7 +79,7 @@ function openLink(url) {
     page.addEventListener('did-navigate', (e) => {
         const window = e.target;
         if (window.classList.contains("open")) {
-            document.getElementById("searchbar").value = e.url;
+            document.getElementById("searchbar").value = changeUrlName(e.url);
             document.getElementById("backBtn").disabled = !window.canGoBack();
             document.getElementById("forwardBtn").disabled = !window.canGoForward();
         }
@@ -84,9 +89,11 @@ function openLink(url) {
 }
 tabs.addEventListener("open", (event) => {
     event.preventDefault();
-    openLink("./views/newtab/index.html");
+    openHome();
+    document.getElementById("searchbar").focus();
 });
-openLink("./views/newtab/index.html");
+openHome();
+document.getElementById("searchbar").focus();
 tabs.addEventListener("select", (e) => {
     selectTab(e.detail.id.replace("tab", ""));
 });
@@ -149,11 +156,15 @@ ipcRenderer.on("action", function (e, data) {
 function startLoading(e) {
     console.log(e.target.id.replace("window", ""))
     const tab = document.getElementById(`tab${e.target.id.replace("window", "")}`);
-    tab.innerHTML = `<x-throbber  type="spinner" size="small" computedSize="small"></x-throbber><x-label>${e.target.src}</x-label>`;
+    tab.innerHTML = `<x-throbber  type="spinner" size="small" computedSize="small"></x-throbber><x-label>${changeUrlName(e.target.src)}</x-label>`;
     if (e.target.classList.contains("open")) {
-        document.getElementById("searchbar").value = e.target.src;
+        document.getElementById("searchbar").value = changeUrlName(e.target.src);
         document.getElementById("reloadBtn").innerHTML = `<img src="./titleBar/winIcons/close-w-20.png"/>`;
     }
+}
+function openHome() {
+    openLink("./views/newtab/index.html");
+    document.getElementById("searchbar").focus();
 }
 function handleNavs(e) {
     console.log(e);
@@ -162,10 +173,27 @@ function handleNavs(e) {
     if (url.includes("chrome://")) {
         e.preventDefault();
         let view = url.replace("chrome://", "");
-        view = view.replaceAll("/","");
+        view = view.replaceAll("/", "");
         console.log(view)
         if (views.includes(view)) {
             e.target.src = `./views/${view}/index.html`;
         }
     }
+}
+function changeUrlName(OGurl) {
+    var url = path.parse(OGurl.replace("file:///", ""));
+    if (path.relative(__dirname, url.dir).includes("views")) {
+        const pageName = (path.relative(__dirname, url.dir).substr(5, url.length).replace(/\\/g, ""));
+        if (pageName == "newtab") {
+            return ""
+        }
+    } else {
+        return OGurl
+    }
+}
+function changeTheme(e) {
+    const toggle = document.getElementById("darkModeToggle");
+    const theme = toggle.toggled ? "light" : "dark";
+    document.querySelector('meta[name="xel-theme"]').setAttribute("content", `./scripts/theme-${theme}.css`);
+    ipcRenderer.sendSync("theme", theme);
 }

@@ -4,15 +4,18 @@
     flex-grow: 1;
     display: flex;
 }
-#windows webview{
+
+#windows webview {
     flex-grow: 1
 }
-#windows .sidePanel{
+
+#windows .sidePanel {
     width: max-content;
     height: 100%;
     margin-top: 0;
     border-radius: 0;
 }
+
 #tabs {
     -webkit-app-region: drag;
     width: 85%;
@@ -27,34 +30,43 @@
     height: 100%;
     display: none;
 }
-x-doctab img{
-   animation: scaleIn .15s;
+
+x-doctab img {
+    animation: scaleIn .15s;
 }
-x-doctab x-label{
+
+x-doctab x-label {
     animation: fadeIn .15s;
 }
-.list x-label{
+
+.list x-label {
     padding: 1px;
 }
-.list{
+
+.list {
     padding: 5px;
 }
+
 @keyframes scaleIn {
-    0%{
+    0% {
         transform: scale(0);
     }
-    100%{
+
+    100% {
         transform: scale(1);
     }
 }
+
 @keyframes fadeIn {
-    0%{
+    0% {
         opacity: 0;
     }
-    100%{
+
+    100% {
         opacity: 1;
     }
 }
+
 webview {
     background-color: white;
 }
@@ -114,7 +126,8 @@ body {
 
 #titlebar {
     width: max-content;
-    padding: 0;;
+    padding: 0;
+    ;
     z-index: 55;
     padding-left: 65px;
     height: 100%;
@@ -128,45 +141,82 @@ body {
     margin: auto;
     margin-top: 5px;
     border: none;
+    color: #ffffffb0;
+    transition: color .25s;
 }
-x-input::part(input)::selection{
+#searchbar:hover{
+    color: rgba(255, 255, 255, 0.911);
+}
+#searchbar:focus{
+    color: white;
+}
+x-input::part(input)::selection {
     background: rgb(87, 124, 202) !important;
 }
-x-input{
+
+x-input {
     border-radius: 5px;
 }
+
 *::selection {
     background: rgb(87, 124, 202) !important;
 }
-#cntrlBtns {
+
+.cntrlBtns {
     display: flex;
     margin: auto;
 }
 
-#cntrlBtns x-button {
+.cntrlBtns x-button {
     margin: 5px;
 }
 
-#cntrlBtns x-icon {
-    height: 14px;
-    width: 14px;
+.cntrlBtns x-icon {
+    height: 14px !important;
+    width: 14px !important;
 }
-#cntrlBtns img{
+
+.cntrlBtns img {
     margin: auto;
     display: block;
     height: 10px;
     margin-top: 7px;
 }
-#reloadBtn{
+
+#reloadBtn {
     min-width: 24px;
 }
-x-doctab{
-    outline: none;
+
+x-doctab {
+    outline: none !important;
     border-radius: 2px;
 }
-.sidePanel#historyPanel{
+
+.sidePanel#historyPanel {
     width: 300px;
 }
-x-doctab[selected]{
-    background: #565656;
+
+x-doctab[selected] {
+    background: #4c4c4c !important
+}
+
+dialog {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    border-radius: 7px !important;
+}
+x-doctab:hover {
+    background: rgb(144 144 144 / 10%) !important;
+}
+x-throbber{
+    min-width: 15px;
+}
+#settingsModal{
+    width: 50vw;
+}
+.opt{
+    display: flex;
+}
+.opt span{
+    width: 90%;
 }
