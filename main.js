@@ -12,6 +12,7 @@ function createWindow() {
             webviewTag: true,
             enableRemoteModule: true
         },
+        icon: __dirname + "/logo.ico",
         autoHideMenuBar: true,
         frame: false
 

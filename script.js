@@ -59,6 +59,7 @@ function openLink(url) {
     }
     page.addEventListener('did-stop-loading', (e) => {
         tab.innerHTML = `<img src="${getBase(e.target.src)}/favicon.ico" /><x-label>${page.getTitle().toString()}</x-label>`;
+        tab.title = page.getTitle().toString();
         if (e.target.classList.contains("open")) {
             document.getElementById("reloadBtn").innerHTML = `<x-icon size="small" iconset="fluent-outlined.svg" name="refresh"></x-icon> `;
         }
