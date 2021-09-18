@@ -1,0 +1,172 @@
+#windows {
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    display: flex;
+}
+#windows webview{
+    flex-grow: 1
+}
+#windows .sidePanel{
+    width: max-content;
+    height: 100%;
+    margin-top: 0;
+    border-radius: 0;
+}
+#tabs {
+    -webkit-app-region: drag;
+    width: 85%;
+}
+
+#tabs x-label {
+    padding: 5px;
+}
+
+#windows webview {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+x-doctab img{
+   animation: scaleIn .15s;
+}
+x-doctab x-label{
+    animation: fadeIn .15s;
+}
+.list x-label{
+    padding: 1px;
+}
+.list{
+    padding: 5px;
+}
+@keyframes scaleIn {
+    0%{
+        transform: scale(0);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+@keyframes fadeIn {
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+webview {
+    background-color: white;
+}
+
+#windows webview.open {
+    display: flex;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: system-ui;
+}
+
+#browser {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#tabs x-throbber {
+    margin-bottom: 5px;
+    padding-right: 5px;
+    width: 15px;
+    height: 15px;
+}
+
+#titlebar {
+    display: block;
+    width: max-content;
+    background: var(--background-color);
+    height: 100%;
+}
+
+#main {
+    height: calc(100% - 32px);
+    margin-top: 32px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+
+
+#tabGrp {
+    display: flex;
+    width: 100%;
+    height: 22px;
+}
+
+#tabs {
+    z-index: 56;
+    outline: none;
+    width: 100%;
+}
+
+#titlebar {
+    width: max-content;
+    padding: 0;;
+    z-index: 55;
+    padding-left: 65px;
+    height: 100%;
+}
+
+#searchbar {
+    width: 100%;
+    max-width: 100vw;
+    border-radius: 5px;
+    height: 75%;
+    margin: auto;
+    margin-top: 5px;
+    border: none;
+}
+x-input::part(input)::selection{
+    background: rgb(87, 124, 202) !important;
+}
+x-input{
+    border-radius: 5px;
+}
+*::selection {
+    background: rgb(87, 124, 202) !important;
+}
+#cntrlBtns {
+    display: flex;
+    margin: auto;
+}
+
+#cntrlBtns x-button {
+    margin: 5px;
+}
+
+#cntrlBtns x-icon {
+    height: 14px;
+    width: 14px;
+}
+#cntrlBtns img{
+    margin: auto;
+    display: block;
+    height: 10px;
+    margin-top: 7px;
+}
+#reloadBtn{
+    min-width: 24px;
+}
+x-doctab{
+    outline: none;
+    border-radius: 2px;
+}
+.sidePanel#historyPanel{
+    width: 300px;
+}
+x-doctab[selected]{
+    background: #565656;
+}

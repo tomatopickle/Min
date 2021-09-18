@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xel/0.9.8/themes/cupertino-dark.min.css" />
+    <meta name="xel-accent-color" content="blue">
+    <link rel="stylesheet" href="./titleBar/style.css">
+    <link rel="stylesheet" href="./style.css">
+    <title>Browse</title>
+</head>
+
+<body>
+    <div id="browser">
+        <div id="tabGrp">
+            <x-doctabs computedSize="small" size="small" id="tabs" style="height:25px">
+            </x-doctabs>
+            <header id="titlebar">
+                <div id="window-controls">
+                    <div class="button" id="min-button">
+                        <img srcset="titleBar/winIcons/min-w-10.png 1x, titleBar/winIcons/min-w-12.png 1.25x, titleBar/winIcons/min-w-15.png 1.5x, titleBar/winIcons/min-w-15.png 1.75x, titleBar/winIcons/min-w-20.png 2x, titleBar/winIcons/min-w-20.png 2.25x, titleBar/winIcons/min-w-24.png 2.5x, titleBar/winIcons/min-w-30.png 3x, titleBar/winIcons/min-w-30.png 3.5x"
+                            draggable="false" />
+                    </div>
+                    <div class="button" id="max-button">
+                        <img srcset="titleBar/winIcons/max-w-10.png 1x, titleBar/winIcons/max-w-12.png 1.25x, titleBar/winIcons/max-w-15.png 1.5x, titleBar/winIcons/max-w-15.png 1.75x, titleBar/winIcons/max-w-20.png 2x, titleBar/winIcons/max-w-20.png 2.25x, titleBar/winIcons/max-w-24.png 2.5x, titleBar/winIcons/max-w-30.png 3x, titleBar/winIcons/max-w-30.png 3.5x"
+                            draggable="false" />
+                    </div>
+                    <div class="button" id="restore-button">
+                        <img srcset="titleBar/winIcons/restore-w-10.png 1x, titleBar/winIcons/restore-w-12.png 1.25x, titleBar/winIcons/restore-w-15.png 1.5x, titleBar/winIcons/restore-w-15.png 1.75x, titleBar/winIcons/restore-w-20.png 2x, titleBar/winIcons/restore-w-20.png 2.25x, titleBar/winIcons/restore-w-24.png 2.5x, titleBar/winIcons/restore-w-30.png 3x, titleBar/winIcons/restore-w-30.png 3.5x"
+                            draggable="false" />
+                    </div>
+                    <div class="button" id="close-button">
+                        <img class="icon" src="./titleBar/winIcons/close-w-10.png" draggable="false" />
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div style="width:100%;display: flex;">
+            <div id="cntrlBtns">
+                <x-button id="backBtn" onclick="back()" skin="flat" computedSize="small" size="small"
+                    style="width:max-content">
+                    <x-icon size="small" iconset="fluent-outlined.svg" name="chevron-left"></x-icon>
+                </x-button>
+                <x-button onclick="forward()" id="forwardBtn" skin="flat" computedSize="small" size="small"
+                    style="width:max-content">
+                    <x-icon size="small" iconset="fluent-outlined.svg" name="chevron-right"></x-icon>
+                </x-button>
+                <x-button id="reloadBtn" onclick="reload()" skin="flat" computedSize="small" size="small"
+                    style="width:max-content">
+                    <x-icon size="small" iconset="fluent-outlined.svg" name="refresh"></x-icon>
+                </x-button>
+            </div>
+            <x-input onkeydown="go(event)" id="searchbar" size="large" computedSize="large">
+                <x-icon iconset="fluent-outlined.svg" name="search"></x-icon>
+                <x-label>Search or type an address</x-label>
+            </x-input>
+        </div>
+        <div id="windows">
+            <x-card class="sidePanel" id="historyPanel" hidden>
+                <main>
+                    <strong>History</strong>
+                    <p>
+                        <x-input>
+                            <x-icon iconset="fluent-outlined.svg" name="search"></x-icon>
+                            <x-label>Search</x-label>
+                        </x-input>
+                        <br>
+                    <div class="list">
+                        <x-label>
+                            <h4>Hai</h4>
+                            <p>https://google.com</p>
+                            <br>
+                        </x-label>
+                        <x-label>
+                            <h4>Hai</h4>
+                            <p>https://google.com</p>
+                        </x-label>
+                    </div>
+                    </p>
+                </main>
+            </x-card>
+        </div>
+    </div>
+</body>
+<script src="./opendb.min.js"></script>
+<script src="./titleBar/titlebar.js"></script>
+<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/xel/0.9.8/xel.min.js"></script>
+<script defer src="./script.js"></script>
+
+</html>

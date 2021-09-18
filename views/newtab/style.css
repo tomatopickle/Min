@@ -1,0 +1,46 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+main {
+    margin: auto;
+    width: max-content;
+    height: max-content;
+    margin-top: 35vh;
+}
+
+main #searchbar {
+    font-size: 22.5px;
+    line-height: 1.2rem;
+    width: 60vw;
+    border-radius: 5px;
+    border: none;
+    /* background: #232323bd; */
+    background-color: #333333c4;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    color: #ffffffd9;
+    transition: box-shadow .15s;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+#searchbar:hover {
+    background: #383838de;
+}
+
+#searchbar:focus {
+    background: #383838de;
+    border: none;
+    outline: none;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
