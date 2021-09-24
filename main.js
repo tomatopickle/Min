@@ -1,12 +1,15 @@
-const { app, BrowserWindow,nativeTheme ,ipcMain} = require('electron');
+const { app, BrowserWindow, nativeTheme, ipcMain, webContents } = require('electron');
 const { download } = require('electron-dl');
+const remoteMain = require("@electron/remote/main");
+const protocols = require('electron-protocols');
+const path = require('path');
+remoteMain.initialize();
 var win, contextMenu;
 function createWindow() {
     win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            enableBlinkFeatures: "WebContentsForceDark",
             nodeIntegration: true,
             contextIsolation: false,
             webviewTag: true,
@@ -17,8 +20,26 @@ function createWindow() {
         frame: false
 
     });
+    remoteMain.enable(win.webContents);
     win.loadFile('./index.html');
     contextMenu = require('electron-context-menu');
+    win.maximize();
+    win.show();
+    setTimeout(() => {
+        const { dialog } = require("electron");
+        dialog.showMessageBox({ message: "An update was found and installed, restart now?", type: "info", buttons: ["Restart", "Cancel"] })
+        .then((e) => {
+            console.log(e);
+            if (e.response == 0) {
+                app.relaunch();
+                app.exit();
+                win = null;
+                return
+            }
+        });
+        const { autoUpdater } = require('electron-updater');
+        autoUpdater.checkForUpdatesAndNotify();
+    }, 5000);
 }
 app.whenReady().then(() => {
     var session = require('electron').session;
@@ -29,7 +50,11 @@ app.whenReady().then(() => {
     createWindow();
 });
 app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') app.quit()
+    if (process.platform !== 'darwin') {
+        win = null;
+        app.quit();
+        return
+    }
 });
 app.on("web-contents-created", (e, contents) => {
     if (contents.getType() == "webview") {
@@ -110,8 +135,14 @@ app.on("web-contents-created", (e, contents) => {
         });
     }
 });
-nativeTheme.themeSource = 'dark';
-ipcMain.on("theme",(data)=>{
-    console.log(data);
-    nativeTheme.themeSource = data;
-})
+protocols.register('min', uri => {
+    let base = app.getAppPath();
+    if (uri.hostname == "newtab") {
+        if (uri.path) {
+            return path.join(base, `views/newtab/${uri.path}`);
+        }
+        return path.join(base, "views/newtab/index.html");
+    } else {
+        return path.join(base, `views/${uri.hostname}`, uri.path);
+    }
+});

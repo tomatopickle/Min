@@ -75,6 +75,25 @@ webview {
     display: flex;
 }
 
+.setting {
+    display: none;
+}
+
+.setting.open {
+    display: inherit;
+    animation: fadeIn .25s;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 html,
 body {
     margin: 0;
@@ -121,15 +140,13 @@ body {
 #tabs {
     z-index: 56;
     outline: none;
-    width: 100%;
 }
 
 #titlebar {
     width: max-content;
     padding: 0;
-    ;
+    margin-left: auto;
     z-index: 55;
-    padding-left: 65px;
     height: 100%;
 }
 
@@ -144,12 +161,15 @@ body {
     color: #ffffffb0;
     transition: color .25s;
 }
-#searchbar:hover{
+
+#searchbar:hover {
     color: rgba(255, 255, 255, 0.911);
 }
-#searchbar:focus{
+
+#searchbar:focus {
     color: white;
 }
+
 x-input::part(input)::selection {
     background: rgb(87, 124, 202) !important;
 }
@@ -171,12 +191,12 @@ x-input {
     margin: 5px;
 }
 
-.cntrlBtns x-icon {
+.cntrlBtns x-button x-icon {
     height: 14px !important;
     width: 14px !important;
 }
 
-.cntrlBtns img {
+.cntrlBtns #reloadBtn img {
     margin: auto;
     display: block;
     height: 10px;
@@ -196,27 +216,111 @@ x-doctab {
     width: 300px;
 }
 
-x-doctab[selected] {
-    background: #4c4c4c !important
+@media (prefers-color-scheme: dark) {
+    x-doctab:hover {
+        background: rgb(144 144 144 / 10%) !important;
+    }
+
+    #tabs x-doctab[selected] {
+        background: #4c4c4c !important;
+    }
+}
+
+@media (prefers-color-scheme:light) {
+
+    #searchbar {
+        color: #3a3a3ab0 !important;
+    }
+
+    #searchbar:hover {
+        color: rgba(46, 46, 46, 0.911) !important;
+    }
+
+    #searchbar:focus {
+        color: rgb(0, 0, 0) !important;
+    }
+
+    #window-controls .button {
+        filter: contrast(.25);
+    }
+
+    #close-button:hover {
+        filter: none;
+    }
 }
 
 dialog {
-    top: 50% !important;
-    transform: translateY(-50%) !important;
+    top: 25% !important;
     border-radius: 7px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: 50vh !important;
 }
-x-doctab:hover {
-    background: rgb(144 144 144 / 10%) !important;
-}
-x-throbber{
+
+x-throbber {
     min-width: 15px;
 }
-#settingsModal{
+
+#settingsModal {
     width: 50vw;
 }
-.opt{
+
+.opt {
     display: flex;
 }
-.opt span{
+
+.opt span {
     width: 90%;
+}
+
+#bgs {
+    display: grid;
+    grid-template-columns: 20% 20% 20%;
+    grid-gap: 10px;
+    width: 100%;
+    row-gap: 6px;
+    column-gap: 95px;
+}
+
+#bgs img {
+    height: 15vh;
+    margin: 5px;
+    border-radius: 5px;
+    user-select: none;
+    -webkit-user-drag: none;
+    border: solid 3px transparent;
+    min-width: 200px;
+}
+
+#bgs img:hover {
+    border-color: grey;
+}
+
+#bgs img.selected {
+    border: solid 3px var(--accent-color);
+}
+
+#bgUploadBtn {
+    background-color: var(--dark-background-color);
+    width: 200px;
+    height: 15vh;
+    border-radius: 5px;
+    margin-top: 7px;
+}
+#bgUploadBtn:hover{
+    filter: brightness(.95);
+}
+#bgUploadBtn span {
+    margin: auto;
+    display: block;
+    text-align: center;
+    margin-top: 8%;
+    user-select: none;
+}
+
+#bgUploadBtn x-icon {
+    height: 50px !important;
+    margin: auto;
+    margin-top: 3%;
+    width: 50px !important;
 }

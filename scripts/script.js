@@ -1,6 +1,26 @@
 let tabs = document.querySelector("x-doctabs");
 const path = require("path");
-const { ipcRenderer } = require("electron")
+const fs = require("fs");
+const { ipcRenderer } = require("electron");
+const { nativeTheme, dialog } = require('@electron/remote');
+// Adding these first coz they're are needed to decide theme
+document.getElementById("darkModeToggle").toggled = (db.local.get("settings.theme") == 'dark');
+changeTheme();
+document.getElementById("accentColorSelect").value = (db.local.get("settings.color") || 'blue');
+changeColor();
+function changeTheme() {
+    const toggle = document.getElementById("darkModeToggle");
+    const theme = toggle.toggled ? "dark" : "light";
+    document.querySelector('meta[name="xel-theme"]').setAttribute("content", `./scripts/theme-${theme}.css`);
+    nativeTheme.themeSource = theme;
+    db.local.set("settings.theme", theme);
+}
+function changeColor() {
+    const select = document.getElementById("accentColorSelect");
+    const color = select.value;
+    document.querySelector('meta[name="xel-accent-color"]').setAttribute("content", color);
+    db.local.set("settings.color", color);
+}
 function selectTab(id, isNewTab) {
     document.querySelector("webview.open")?.classList.remove("open");
     const window = document.getElementById(`window${id}`);
@@ -40,6 +60,19 @@ function openLink(url) {
     if (document.querySelector("x-doctab[selected]")) {
         document.querySelector("x-doctab[selected]").selected = false;
     }
+    if (url == "min://newtab") {
+        console.log("New tab it ss")
+        page.setAttribute("nodeIntegration", true);
+        page.setAttribute("webpreferences", "contextIsolation=false");
+        page.addEventListener("dom-ready", function () {
+            page.send("bg", localStorage.getItem("settings.bg") || "defbg.svg");
+        });
+    }
+    page.addEventListener('ipc-message', (event, s) => {
+        if (event.channel == "settings") {
+            document.getElementById("settingsBtn").click();
+        }
+    });
     tab.selected = true;
     tab.id = `tab${id}`;
     tab.innerHTML = `<x-throbber  type="spinner" size="small" computedSize="small"></x-throbber><x-label>${changeUrlName(url)}</x-label>`;
@@ -56,9 +89,6 @@ function openLink(url) {
     page.addEventListener('did-get-redirect-request', (e) => {
         startLoading(e);
     });
-    page.addEventListener('did-start-navigation', function (e) {
-        handleNavs(e);
-    });
     tab.onclick = function (e) {
         selectTab(id);
     }
@@ -68,9 +98,11 @@ function openLink(url) {
         if (e.target.classList.contains("open")) {
             document.getElementById("reloadBtn").innerHTML = `<x-icon size="small" iconset="fluent-outlined.svg" name="refresh"></x-icon> `;
         }
-        var history = db.local.getJSON("history") || [];
-        history.unshift(({ url: page.src, title: page.getTitle() }));
-        db.local.setJSON("history", history);
+        if (!page.src.includes("views") && !page.src.includes("newtab")) {
+            var history = db.local.getJSON("history") || [];
+            history.unshift(({ url: page.src, title: page.getTitle() }));
+            db.local.setJSON("history", history);
+        }
     });
     tab.addEventListener("wheel", event => {
         tabs.closeTab(tab);
@@ -163,37 +195,66 @@ function startLoading(e) {
     }
 }
 function openHome() {
-    openLink("./views/newtab/index.html");
+    openLink("min://newtab");
     document.getElementById("searchbar").focus();
 }
-function handleNavs(e) {
-    console.log(e);
-    const url = e.url;
-    const views = ["newtab"];
-    if (url.includes("chrome://")) {
-        e.preventDefault();
-        let view = url.replace("chrome://", "");
-        view = view.replaceAll("/", "");
-        console.log(view)
-        if (views.includes(view)) {
-            e.target.src = `./views/${view}/index.html`;
-        }
-    }
-}
-function changeUrlName(OGurl) {
-    var url = path.parse(OGurl.replace("file:///", ""));
-    if (path.relative(__dirname, url.dir).includes("views")) {
-        const pageName = (path.relative(__dirname, url.dir).substr(5, url.length).replace(/\\/g, ""));
-        if (pageName == "newtab") {
+function changeUrlName(url) {
+    if (url.includes("min://")) {
+        if (url.includes("newtab")) {
             return ""
         }
     } else {
-        return OGurl
+        return url
     }
 }
-function changeTheme(e) {
-    const toggle = document.getElementById("darkModeToggle");
-    const theme = toggle.toggled ? "light" : "dark";
-    document.querySelector('meta[name="xel-theme"]').setAttribute("content", `./scripts/theme-${theme}.css`);
-    ipcRenderer.sendSync("theme", theme);
+function changeSettingsPage(e) {
+    document.querySelector(".setting.open").classList.remove("open");
+    document.getElementById(e).classList.add("open");
+}
+var selectedBg = localStorage.getItem("settings.bg") || "defbg.svg";
+const wallpapers = ["crystal.jpeg", "dark.jpg", "defbg.svg", "Float.jpg", "indeepspace1-tomanderswatkins.jpg", "indeepspace2-tomanderswatkins.jpg", "indeepspace5-tomanderswatkins.jpg", "infinity_gx.png", "Liquid-Metallic.jpg", "Mountain-Color.jpg", "pink.jpg", "reborn3_dark.svg", "reborn5_dark.png", "sunset.png"];
+wallpapers.forEach(item => {
+    var pics = document.getElementById("bgs");
+    const img = document.createElement("img");
+    if (wallpapers.includes(item)) {
+        img.src = "./views/newtab/wallpapers/" + item;
+    } else {
+        img.src = item;
+    }
+    img.onclick = function (e) {
+        document.querySelector("#bgs img.selected").classList.remove("selected");
+        e.target.classList.add("selected");
+        document.querySelectorAll("webview").forEach(el => {
+            if (el.src == "min://newtab") {
+                el.send("bg", item);
+                localStorage.setItem("settings.bg", item);
+            }
+        });
+    }
+    if (item == selectedBg) {
+        img.classList.add("selected");
+    }
+    pics.appendChild(img);
+});
+function uploadBgImage() {
+    dialog.showOpenDialog({ properties: ['openFile'] }).then((data) => {
+        console.log(data)
+        const filePath = data.filePaths[0];
+        const fs = require('fs');
+        fs.copyFile(filePath, "./views/newtab/wallpapers/upload.jpg", (err) => {
+            if (err) throw err;
+        });
+        const img = document.createElement("img");
+        document.querySelector("#bgs img.selected")?.classList.remove("selected");
+        img.classList.add("selected");
+        document.getElementById("bgs").appendChild(img);
+        document.querySelectorAll("webview").forEach(el => {
+            if (el.src == "min://newtab") {
+                el.src = "min://newtab";
+                el.send("bg", upload.jpg);
+                localStorage.setItem("settings.bg", "upload.jpg");
+            }
+        });
+    })
+
 }

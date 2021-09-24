@@ -47,7 +47,7 @@ main {
     margin-top: 25vh;
 }
 
-main #searchbar {
+#searchbar {
     font-size: 22.5px;
     line-height: 1.2rem;
     width: 60vw;
@@ -70,4 +70,48 @@ main #searchbar {
     border: none;
     outline: none;
     box-shadow: rgb(0 0 0 / 32%) 0px 3px 8px 2px;
+}
+
+@media (prefers-color-scheme: light) {
+
+    html,
+    body {
+        background-color: #EEF2F6;
+        color: black;
+    }
+
+    #searchbar {
+        background-color: #fbfbfbdb;
+        box-shadow: rgb(179 179 179 / 35%) 0px 3px 8px;
+        color: #353535d9;
+    }
+
+    #searchbar:focus,
+    #searchbar:hover {
+        background: #ffffffeb;
+    }
+
+    #searchbar:focus {
+        box-shadow: rgb(187 187 187 / 32%) 0px 3px 8px 2px !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    path {
+        fill: rgba(255, 255, 255, 0.877);
+    }
+}
+
+#settingsBtn {
+    position: fixed;
+    top: 10px;
+    right: 15px;
+    width: 20px;
+    height:20px;
+    filter: brightness(.75);
+    transition: all .25s;
+}
+
+#settingsBtn:hover {
+    filter: brightness(1);
 }
