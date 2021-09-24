@@ -258,3 +258,4 @@ function uploadBgImage() {
     })
 
 }
+// "build": "electron-packager . Min --platform=win32 --arch=x64 --icon=./logo.ico"
