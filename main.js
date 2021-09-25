@@ -1,8 +1,6 @@
 const { app, BrowserWindow, nativeTheme, ipcMain, webContents } = require('electron');
-const { download } = require('electron-dl');
 const remoteMain = require("@electron/remote/main");
 const protocols = require('electron-protocols');
-const path = require('path');
 remoteMain.initialize();
 var win, contextMenu;
 function createWindow() {
@@ -27,18 +25,18 @@ function createWindow() {
     win.show();
     setTimeout(() => {
         const { dialog } = require("electron");
-        dialog.showMessageBox({ message: "An update was found and installed, restart now?", type: "info", buttons: ["Restart", "Cancel"] })
-        .then((e) => {
-            console.log(e);
-            if (e.response == 0) {
-                app.relaunch();
-                app.exit();
-                win = null;
-                return
-            }
-        });
         const { autoUpdater } = require('electron-updater');
         autoUpdater.checkForUpdatesAndNotify();
+        autoUpdater.on('update-downloaded', () => {
+            dialog.showMessageBox({ message: "An update was found and dowloaded, restart now?", type: "info", buttons: ["Restart", "Cancel"] })
+                .then((e) => {
+                    console.log(e);
+                    if (e.response == 0) {
+                        autoUpdater.quitAndInstall();
+                        return
+                    }
+                });
+        });
     }, 5000);
 }
 app.whenReady().then(() => {
@@ -57,6 +55,7 @@ app.on('window-all-closed', function () {
     }
 });
 app.on("web-contents-created", (e, contents) => {
+    const { download } = require('electron-dl');
     if (contents.getType() == "webview") {
         contextMenu({
             window: contents,
@@ -136,6 +135,7 @@ app.on("web-contents-created", (e, contents) => {
     }
 });
 protocols.register('min', uri => {
+    const path = require('path');
     let base = app.getAppPath();
     if (uri.hostname == "newtab") {
         if (uri.path) {
