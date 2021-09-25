@@ -58,7 +58,10 @@
                 <x-icon iconset="fluent-outlined.svg" name="search"></x-icon>
                 <x-label>Search or type an address</x-label>
             </x-input>
-            <div class="cntrlBtns">
+            <div class="cntrlBtns toolbarBtns">
+                <x-button skin="flat" computedSize="small" size="small" style="width:max-content">
+                    <x-icon size="small" iconset="fluent-outlined.svg" name="clock"></x-icon>
+                </x-button>
                 <x-button id="settingsBtn" skin="flat" computedSize="small" size="small" style="width:max-content">
                     <x-icon size="small" iconset="fluent-outlined.svg" name="tune"></x-icon>
                     <dialog id="settingsModal">
@@ -147,10 +150,10 @@
                                 <h3>New Tab Image</h3>
                                 <br>
                                 <div id="bgs">
-                                       <div id="bgUploadBtn" onclick="uploadBgImage()">
+                                    <div id="bgUploadBtn" onclick="uploadBgImage()">
                                         <x-icon iconset="fluent-outlined.svg" name="image"></x-icon>
-                                           <span>Upload</span>
-                                       </div>
+                                        <span>Upload</span>
+                                    </div>
                                 </div>
                             </div>
                             <div id="settings" class="setting">

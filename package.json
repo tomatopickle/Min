@@ -5,9 +5,9 @@
     "version": "1.0.1",
     "main": "main.js",
     "scripts": {
-        "start": "electron .",
+        "start": "electron . --dev",
         "build": "electron-builder build --win --publish never",
-        "deploy": "electron-builder build --win --publish always"
+        "deploy": "electron-builder build --win --config electron-builder.yml --publish always"
     },
     "dependencies": {
         "@electron/remote": "^2.0.1",

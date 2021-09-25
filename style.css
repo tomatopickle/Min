@@ -324,3 +324,15 @@ x-throbber {
     margin-top: 3%;
     width: 50px !important;
 }
+x-doctab::part(close-button) {
+    left: inherit !important;
+    right: 0;
+    border-radius: 5px;
+}
+.toolbarBtns x-button{
+    margin-right: 10px;
+    margin-left: 10px;
+}
+x-doctabs::part(open-button){
+    border-radius: 2px;;
+}

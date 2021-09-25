@@ -11,7 +11,8 @@ function createWindow() {
             nodeIntegration: true,
             contextIsolation: false,
             webviewTag: true,
-            enableRemoteModule: true
+            enableRemoteModule: true,
+            nativeWindowOpen: false
         },
         icon: __dirname + "/logo.ico",
         autoHideMenuBar: true,
@@ -23,6 +24,7 @@ function createWindow() {
     contextMenu = require('electron-context-menu');
     win.maximize();
     win.show();
+    app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
     setTimeout(() => {
         const { dialog } = require("electron");
         const { autoUpdater } = require('electron-updater');

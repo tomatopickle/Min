@@ -55,6 +55,7 @@ function openLink(url) {
     var page = document.createElement("webview");
     page.id = `window${id}`;
     page.src = url;
+    page.webpreferences = "nativeWindowOpen=false"
     document.getElementById("windows").appendChild(page);
     let tab = document.createElement("x-doctab");
     if (document.querySelector("x-doctab[selected]")) {
@@ -222,7 +223,7 @@ wallpapers.forEach(item => {
         img.src = item;
     }
     img.onclick = function (e) {
-        document.querySelector("#bgs img.selected").classList.remove("selected");
+        document.querySelector("#bgs img.selected")?.classList.remove("selected");
         e.target.classList.add("selected");
         document.querySelectorAll("webview").forEach(el => {
             if (el.src == "min://newtab") {
@@ -241,7 +242,7 @@ function uploadBgImage() {
         console.log(data)
         const filePath = data.filePaths[0];
         const fs = require('fs');
-        fs.copyFile(filePath, "./views/newtab/wallpapers/upload.jpg", (err) => {
+        fs.copyFile(filePath, `${!isDev() ? process.resourcesPath : "./views/newtab/wallpapers"}/upload.jpg`, (err) => {
             if (err) throw err;
         });
         const img = document.createElement("img");
@@ -251,11 +252,13 @@ function uploadBgImage() {
         document.querySelectorAll("webview").forEach(el => {
             if (el.src == "min://newtab") {
                 el.src = "min://newtab";
-                el.send("bg", upload.jpg);
+                el.send("bg", `${!isDev() ? process.resourcesPath : "./views/newtab/wallpapers"}/upload.jpg`);
                 localStorage.setItem("settings.bg", "upload.jpg");
             }
         });
     })
 
 }
-// "build": "electron-packager . Min --platform=win32 --arch=x64 --icon=./logo.ico"
+function isDev() {
+    return process.argv0.includes("tskbrorwidgettest");
+}
