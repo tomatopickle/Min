@@ -25,6 +25,7 @@ function selectTab(id, isNewTab) {
     document.querySelector("webview.open")?.classList.remove("open");
     const window = document.getElementById(`window${id}`);
     window?.classList.add("open");
+    window?.focus();
     if (window.src.includes("views") && window.src.includes("newtab")) {
         document.getElementById("searchbar").focus();
     }
@@ -53,16 +54,16 @@ function closeWindow(id) {
 function openLink(url) {
     var id = Math.floor(100000 + Math.random() * 900000);
     var page = document.createElement("webview");
+    var icon;
     page.id = `window${id}`;
     page.src = url;
-    page.webpreferences = "nativeWindowOpen=false"
+    page.webpreferences = "nativeWindowOpen=true"
     document.getElementById("windows").appendChild(page);
     let tab = document.createElement("x-doctab");
     if (document.querySelector("x-doctab[selected]")) {
         document.querySelector("x-doctab[selected]").selected = false;
     }
     if (url == "min://newtab") {
-        console.log("New tab it ss")
         page.setAttribute("nodeIntegration", true);
         page.setAttribute("webpreferences", "contextIsolation=false");
         page.addEventListener("dom-ready", function () {
@@ -80,6 +81,16 @@ function openLink(url) {
     page.addEventListener('did-start-loading', (e) => {
         startLoading(e);
     });
+    page.addEventListener("page-favicon-updated", (e) => {
+        icon = e.favicons[0];
+        if (!page.isLoading()) {
+            tab.classList.add("noAnim");
+            tab.innerHTML = `<img src="${icon}" /><x-label>${changeUrlName(page.getTitle().toString())}</x-label>`;
+            setTimeout(() => {
+                tab.classList.remove("noAnim");
+            }, 500);
+        }
+    });
     page.addEventListener('close', (e) => {
         tabs.closeTab(document.getElementById(`tab${e.target.id.replace("window", "")}`))
         closeWindow(e.target.id.replace("window", ""));
@@ -94,7 +105,7 @@ function openLink(url) {
         selectTab(id);
     }
     page.addEventListener('did-stop-loading', (e) => {
-        tab.innerHTML = `<img src="${getBase(e.target.src)}/favicon.ico" /><x-label>${changeUrlName(page.getTitle().toString())}</x-label>`;
+        tab.innerHTML = `<img src="${icon || `${getBase(e.target.src)}/favicon.ico`}" /><x-label>${changeUrlName(page.getTitle().toString())}</x-label>`;
         tab.title = page.getTitle().toString();
         if (e.target.classList.contains("open")) {
             document.getElementById("reloadBtn").innerHTML = `<x-icon size="small" iconset="fluent-outlined.svg" name="refresh"></x-icon> `;
@@ -117,14 +128,13 @@ function openLink(url) {
             var time = Date.now();
             history.unshift(({ url: page.src, title: page.getTitle(), time: time }));
             db.local.setJSON("history", history);
-            e.target.addEventListener("did-finish-load", () => {
+            page.addEventListener("page-title-updated", (e) => {
                 var hist = db.local.getJSON("history");
-                page = document.getElementById(e.target.id);
                 hist.forEach((item, i) => {
-                    if (item.time == time && item.url == page.src) {
+                    if (item.time == time) {
                         hist[i].title = page.getTitle();
                         hist[i].url = page.src;
-                        console.log(hist[i]);
+                        hist[i].time = Date.now();
                         db.local.setJSON("history", hist);
                     }
                 });
@@ -145,7 +155,6 @@ tabs.addEventListener("select", (e) => {
     selectTab(e.detail.id.replace("tab", ""));
 });
 tabs.addEventListener("close", (e) => {
-    console.log(e)
     closeWindow(e.detail.id.replace("tab", ""));
 });
 function getBase(url) {
@@ -195,13 +204,11 @@ function forward(window) {
     }
 }
 ipcRenderer.on("action", function (e, data) {
-    console.log(data);
     if (data.type == "openLinkInNewTab") {
         openLink(data.value);
     }
 });
 function startLoading(e) {
-    console.log(e.target.id.replace("window", ""))
     const tab = document.getElementById(`tab${e.target.id.replace("window", "")}`);
     tab.innerHTML = `<x-throbber  type="spinner" size="small" computedSize="small"></x-throbber><x-label>${changeUrlName(e.target.src)}</x-label>`;
     if (e.target.classList.contains("open")) {
@@ -253,7 +260,6 @@ wallpapers.forEach(item => {
 });
 function uploadBgImage() {
     dialog.showOpenDialog({ properties: ['openFile'] }).then((data) => {
-        console.log(data)
         const filePath = data.filePaths[0];
         const fs = require('fs');
         fs.copyFile(filePath, `${!isDev() ? process.resourcesPath : "./views/newtab/wallpapers"}/upload.jpg`, (err) => {
@@ -342,9 +348,9 @@ function openModal(modalId) {
 function closeModal(modalId) {
     document.getElementById(modalId).close();
 }
-function renderHistory(history) {
+function renderHistory(history, dontRemove) {
     var panel = document.querySelector("#historyPanel .list");
-    panel.innerHTML = "";
+    if (!dontRemove) { panel.innerHTML = "" };
     history.forEach((item, i) => {
         var el = document.createElement("x-label");
         el.innerHTML = `<x-label>
@@ -369,10 +375,23 @@ function renderHistory(history) {
                     history.splice(i, i + 1);
                     db.local.setJSON("history", history);
                     renderHistory(history);
-                    console.log(history, history.slice(i))
                     break;
             }
         }
         panel.appendChild(el);
     });
 }
+document.querySelector("#historyPanel").addEventListener('scroll', function (event) {
+    var element = event.target;
+    var panel = document.querySelector("#historyPanel .list");
+    if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+        var history = db.local.getJSON("history") || [];
+        // If there is no more history to show
+        if (history.length < document.querySelector("#historyPanel .list").childElementCount + 25) {
+            renderHistory(history);
+        } else {
+            history.splice(index + 1, array.length - (index + 1));
+            renderHistory(history, true);
+        }
+    }
+});

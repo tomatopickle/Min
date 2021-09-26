@@ -35,7 +35,7 @@ x-doctab img {
     animation: scaleIn .15s;
 }
 
-x-doctab x-label {
+x-doctab:not(.noAnim) x-label {
     animation: fadeIn .15s;
 }
 
@@ -414,4 +414,7 @@ x-doctabs::part(open-button) {
 .list x-label p {
     text-overflow: ellipsis;
     overflow: hidden;
+}
+x-doctab.noAnim{
+    animation: none !important;
 }
