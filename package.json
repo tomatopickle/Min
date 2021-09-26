@@ -2,10 +2,10 @@
     "name": "Min",
     "description": "description",
     "author": "tomatopickle",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "main": "main.js",
     "scripts": {
-        "start": "electron . --dev",
+        "start": "electron .",
         "build": "electron-builder build --win --publish never",
         "deploy": "electron-builder build --win --config electron-builder.yml --publish always"
     },

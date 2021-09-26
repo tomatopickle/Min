@@ -262,3 +262,13 @@ function uploadBgImage() {
 function isDev() {
     return process.argv0.includes("tskbrorwidgettest");
 }
+function toggleLoaderModal() {
+    if (!document.getElementById(`updateLoaderBg`).querySelector(`x-popover`).opened) {
+        document.getElementById(`updateLoaderBg`).querySelector(`x-popover`).open();
+    } else {
+        document.getElementById(`updateLoaderBg`).querySelector(`x-popover`).close();
+    }
+}
+ipcRenderer.on("downloadingUpdate", (e, data) => {
+    document.getElementById(`updateLoaderBg`).hidden = !data;
+})

@@ -307,9 +307,11 @@ x-throbber {
     border-radius: 5px;
     margin-top: 7px;
 }
-#bgUploadBtn:hover{
+
+#bgUploadBtn:hover {
     filter: brightness(.95);
 }
+
 #bgUploadBtn span {
     margin: auto;
     display: block;
@@ -324,15 +326,37 @@ x-throbber {
     margin-top: 3%;
     width: 50px !important;
 }
+
 x-doctab::part(close-button) {
     left: inherit !important;
     right: 0;
     border-radius: 5px;
 }
-.toolbarBtns x-button{
+
+.toolbarBtns x-button {
     margin-right: 10px;
     margin-left: 10px;
 }
-x-doctabs::part(open-button){
-    border-radius: 2px;;
+
+x-doctabs::part(open-button) {
+    border-radius: 2px;
+    ;
+}
+
+#updateLoader {
+    filter: contrast(0.05) brightness(1.5);
+    height: 90%;
+    margin: auto;
+}
+#updateLoaderBg{
+    position: relative;
+}
+#updateLoaderBg x-backdrop{
+    display: none !important;
+}
+#updateLoaderBg x-popover{
+    position: absolute;
+    top: 28px !important;
+    width: max-content;
+    left: -44px !important;
 }

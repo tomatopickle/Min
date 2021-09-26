@@ -1,6 +1,7 @@
 const { app, BrowserWindow, nativeTheme, ipcMain, webContents } = require('electron');
 const remoteMain = require("@electron/remote/main");
 const protocols = require('electron-protocols');
+
 remoteMain.initialize();
 var win, contextMenu;
 function createWindow() {
@@ -24,13 +25,17 @@ function createWindow() {
     contextMenu = require('electron-context-menu');
     win.maximize();
     win.show();
-    app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
     setTimeout(() => {
+        const path = require("path");
         const { dialog } = require("electron");
         const { autoUpdater } = require('electron-updater');
         autoUpdater.checkForUpdatesAndNotify();
+        autoUpdater.on('update-available', () => {
+            win.webContents.send("downloadingUpdate", true);
+        });
         autoUpdater.on('update-downloaded', () => {
-            dialog.showMessageBox({ message: "An update was found and dowloaded, restart now?", type: "info", buttons: ["Restart", "Cancel"] })
+            win.webContents.send("downloadingUpdate", false);
+            dialog.showMessageBox({ message: "An update was found and downloaded, restart now?", type: "info", buttons: ["Restart", "Cancel"] })
                 .then((e) => {
                     console.log(e);
                     if (e.response == 0) {
@@ -140,7 +145,11 @@ protocols.register('min', uri => {
     const path = require('path');
     let base = app.getAppPath();
     if (uri.hostname == "newtab") {
-        if (uri.path) {
+        if (uri.path?.includes("upload")) {
+            console.log(path.join(!isDev() ? "./views/newtab/wallpapers" : process.resourcesPath, "upload.jpg"));
+            return path.join(isDev() ? "./views/newtab/wallpapers" : process.resourcesPath, "upload.jpg");
+        }
+        else if (uri.path) {
             return path.join(base, `views/newtab/${uri.path}`);
         }
         return path.join(base, "views/newtab/index.html");
@@ -148,3 +157,6 @@ protocols.register('min', uri => {
         return path.join(base, `views/${uri.hostname}`, uri.path);
     }
 });
+function isDev() {
+    return process.argv0.includes("tskbrorwidgettest");
+}

@@ -19,6 +19,14 @@
         <div id="tabGrp">
             <x-doctabs computedSize="small" size="small" id="tabs" style="height:25px">
             </x-doctabs>
+            <div id="updateLoaderBg" hidden>
+                <x-throbber onclick="toggleLoaderModal()" id="updateLoader" type="spin"></x-throbber>
+                <x-popover modal>
+                    <main>
+                        <x-label>Installing Update</x-label>
+                    </main>
+                </x-popover>
+            </div>
             <header id="titlebar">
                 <div id="window-controls">
                     <div class="button" id="min-button">
