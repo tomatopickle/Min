@@ -67,8 +67,49 @@
                 <x-label>Search or type an address</x-label>
             </x-input>
             <div class="cntrlBtns toolbarBtns">
-                <x-button skin="flat" computedSize="small" size="small" style="width:max-content">
+                <x-button id="historyBtn" onclick="getHistory(event)" skin="flat" computedSize="small" size="small"
+                    style="width:max-content">
                     <x-icon size="small" iconset="fluent-outlined.svg" name="clock"></x-icon>
+                    <dialog id="historyPanel" modal class="sidePanel">
+                        <main>
+                            <strong>History</strong>
+                            <p>
+                                <span style="display: flex;align-items: center;">
+                                    <x-button style="width: 26%;">
+                                        <x-icon iconset="fluent-outlined.svg" name="delete"></x-icon>
+                                        <x-menu>
+                                            <x-menuitem onclick="deleteInMins(1)">
+                                                <x-label>Last 1 minute</x-label>
+                                            </x-menuitem>
+                                            <x-menuitem onclick="deleteInMins(5)">
+                                                <x-label>Last 5 minutes</x-label>
+                                            </x-menuitem>
+                                            <x-menuitem onclick="deleteInMins(30)">
+                                                <x-label>Last 30 minutes</x-label>
+                                            </x-menuitem>
+                                            <x-menuitem onclick="deleteInMins(60)">
+                                                <x-label>Last 1 hour</x-label>
+                                            </x-menuitem>
+                                            <x-menuitem onclick="deleteInMins()">
+                                                <x-label>Everything</x-label>
+                                            </x-menuitem>
+                                            <x-menuitem onclick="openModal('delHistModal')">
+                                                <x-label>Custom</x-label>
+                                            </x-menuitem>
+                                        </x-menu>
+                                    </x-button>
+                                    <x-input oninput="searchHistory(event.target.value)">
+                                        <x-icon iconset="fluent-outlined.svg" name="search"></x-icon>
+                                        <x-label>Search</x-label>
+                                    </x-input>
+                                </span>
+                                <br>
+                                <small>Double Click to delete a site from history</small>
+                                <br>
+                            <div class="list"></div>
+                            </p>
+                        </main>
+                    </dialog>
                 </x-button>
                 <x-button id="settingsBtn" skin="flat" computedSize="small" size="small" style="width:max-content">
                     <x-icon size="small" iconset="fluent-outlined.svg" name="tune"></x-icon>
@@ -186,30 +227,32 @@
             </div>
         </div>
         <div id="windows">
-            <x-card class="sidePanel" id="historyPanel" hidden>
-                <main>
-                    <strong>History</strong>
-                    <p>
-                        <x-input>
-                            <x-icon iconset="fluent-outlined.svg" name="search"></x-icon>
-                            <x-label>Search</x-label>
-                        </x-input>
-                        <br>
-                    <div class="list">
-                        <x-label>
-                            <h4>Hai</h4>
-                            <p>https://google.com</p>
-                            <br>
-                        </x-label>
-                        <x-label>
-                            <h4>Hai</h4>
-                            <p>https://google.com</p>
-                        </x-label>
-                    </div>
-                    </p>
-                </main>
-            </x-card>
+
         </div>
+
+        <dialog id="delHistModal" style="height: max-content !important;">
+            <main>
+                <h3>Delete History</h3>
+                <p>
+                    <small style="display: block;margin-bottom: 15px;">How many minutes' of history should we
+                        delete?</small>
+                    <x-numberinput id="delHistInp" style="max-width: 100%;" value="30" suffix=" minutes">
+                        <x-stepper></x-stepper>
+                    </x-numberinput>
+                </p>
+            </main>
+            <br>
+            <footer>
+                <x-button onclick="closeModal('delHistModal');">
+                    <x-label>Cancel</x-label>
+                </x-button>
+                <x-button onclick="deleteInMins(document.getElementById('delHistInp').value)" autofocus toggled
+                    id="agree-button">
+                    <x-label>Delete</x-label>
+                    <x-notification>History Deleted</x-notification>
+                </x-button>
+            </footer>
+        </dialog>
     </div>
 </body>
 <script src="./scripts/opendb.min.js"></script>

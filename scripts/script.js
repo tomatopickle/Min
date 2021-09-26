@@ -99,11 +99,6 @@ function openLink(url) {
         if (e.target.classList.contains("open")) {
             document.getElementById("reloadBtn").innerHTML = `<x-icon size="small" iconset="fluent-outlined.svg" name="refresh"></x-icon> `;
         }
-        if (!page.src.includes("views") && !page.src.includes("newtab")) {
-            var history = db.local.getJSON("history") || [];
-            history.unshift(({ url: page.src, title: page.getTitle() }));
-            db.local.setJSON("history", history);
-        }
     });
     tab.addEventListener("wheel", event => {
         tabs.closeTab(tab);
@@ -115,6 +110,25 @@ function openLink(url) {
             document.getElementById("searchbar").value = changeUrlName(e.url);
             document.getElementById("backBtn").disabled = !window.canGoBack();
             document.getElementById("forwardBtn").disabled = !window.canGoForward();
+        }
+
+        if (!page.src.includes("views") && !page.src.includes("newtab")) {
+            var history = db.local.getJSON("history") || [];
+            var time = Date.now();
+            history.unshift(({ url: page.src, title: page.getTitle(), time: time }));
+            db.local.setJSON("history", history);
+            e.target.addEventListener("did-finish-load", () => {
+                var hist = db.local.getJSON("history");
+                page = document.getElementById(e.target.id);
+                hist.forEach((item, i) => {
+                    if (item.time == time && item.url == page.src) {
+                        hist[i].title = page.getTitle();
+                        hist[i].url = page.src;
+                        console.log(hist[i]);
+                        db.local.setJSON("history", hist);
+                    }
+                });
+            });
         }
     });
     tabs.openTab(tab);
@@ -271,4 +285,94 @@ function toggleLoaderModal() {
 }
 ipcRenderer.on("downloadingUpdate", (e, data) => {
     document.getElementById(`updateLoaderBg`).hidden = !data;
-})
+});
+function getHistory(e, f) {
+    if (e?.target.id != "historyBtn" && !f) return
+    var history = db.local.getJSON("history") || [];
+    if (history.length > 25) {
+        history.length = 25;
+    }
+    renderHistory(history);
+}
+function searchHistory(q) {
+    if (!q) { getHistory(null, true); return }
+    var hist = db.local.getJSON("history");
+    hist = hist.filter(
+        function (data) {
+            return data.url.includes(q) || data.title.includes(q)
+        }
+    );
+    var panel = document.querySelector("#historyPanel .list");
+    panel.innerHTML = "";
+    renderHistory(hist);
+
+}
+
+function time(time) {
+    var date = new Date(time);
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+}
+function deleteInMins(min) {
+    var panel = document.querySelector("#historyPanel .list");
+    if (!min) {
+        db.local.setJSON("history", []);
+        panel.innerHTML = "";
+        return
+    }
+    var hist = db.local.getJSON("history");
+    hist = hist.filter(
+        function (data) {
+            return (new Date() - new Date(data.time)) > min * 60 * 1000
+        }
+    );
+    renderHistory(hist);
+    db.local.setJSON("history", hist);
+    closeModal('delHistModal');
+}
+function openModal(modalId) {
+    document.getElementById(modalId).showModal();
+}
+function closeModal(modalId) {
+    document.getElementById(modalId).close();
+}
+function renderHistory(history) {
+    var panel = document.querySelector("#historyPanel .list");
+    panel.innerHTML = "";
+    history.forEach((item, i) => {
+        var el = document.createElement("x-label");
+        el.innerHTML = `<x-label>
+        <h4><img src="${getBase(item.url)}/favicon.ico">${item.title}</h4>
+        <p>${item.url}</p>
+        <small>${time(item.time)}</small>
+      </x-contextmenu>
+    </x-label>`;
+        let pendingClick = 0;
+        el.onclick = (e) => {
+            if (pendingClick) {
+                clearTimeout(pendingClick);
+                pendingClick = 0;
+            }
+            switch (e.detail) {
+                case 1:
+                    pendingClick = setTimeout(function () {
+                        openLink(item.url);
+                    }, 500);
+                    break;
+                case 2:
+                    history.splice(i, i + 1);
+                    db.local.setJSON("history", history);
+                    renderHistory(history);
+                    console.log(history, history.slice(i))
+                    break;
+            }
+        }
+        panel.appendChild(el);
+    });
+}
